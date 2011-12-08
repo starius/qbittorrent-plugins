@@ -26,21 +26,32 @@ class tfile(object):
                             'software': 118,
                             'pictures': 1075,
                             'books': 195}
-    query_pattern = '%(url)s/forum/ssearch.php?f=%(f)i&q=%(q)s'
+    query_pattern = '%(url)s/forum/ssearch.php?f=%(f)i&q=%(q)s&start=%(start)i'
 
     def __init__(self):
         pass
 
-    def search(self, what, cat='all'):
+    def search_page(self, what, cat, start):
         params = {}
         params['url'] = self.url
         params['q'] = what
         params['f'] = self.supported_categories[cat]
+        params['start'] = start
         dat = retrieve_url(self.query_pattern % params)
         for hit in hit_pattern.finditer(dat):
             d = hit.groupdict()
             d['link'] = self.url + d['link']
             d['engine_url'] = self.url
             d['name'] = tag.sub('', d['name'])
-            prettyPrinter(d)
+            yield d
+
+    def search(self, what, cat='all'):
+        start = 0
+        while True:
+            ds = list(self.search_page(what, cat, start))
+            if not ds:
+                break
+            for d in ds:
+                prettyPrinter(d)
+            start += 25
 

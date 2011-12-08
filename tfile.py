@@ -5,6 +5,7 @@
 from novaprinter import prettyPrinter
 from helpers import retrieve_url, download_file
 import re
+from urllib import quote
 
 hit_pattern = re.compile(r'''<a href=".+">(?P<name>.+)</a>\s*
 \s*</td>\s*
@@ -34,9 +35,10 @@ class tfile(object):
     def search_page(self, what, cat, start):
         params = {}
         params['url'] = self.url
-        params['q'] = what
+        params['q'] = quote(what.decode('utf-8').encode('cp1251'))
         params['f'] = self.supported_categories[cat]
         params['start'] = start
+        print self.query_pattern % params
         dat = retrieve_url(self.query_pattern % params)
         for hit in hit_pattern.finditer(dat):
             d = hit.groupdict()

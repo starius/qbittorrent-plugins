@@ -3,7 +3,7 @@
 # This plugin is licensed under the GNU GPL Version 2.
 
 from novaprinter import prettyPrinter
-from helpers import retrieve_url, download_file
+from helpers import retrieve_url
 import re
 from urllib import quote
 

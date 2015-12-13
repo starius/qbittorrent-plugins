@@ -1,11 +1,16 @@
-#VERSION: 2.01
+#VERSION: 2.03
 #AUTHORS: Boris Nagaev (bnagaev@gmail.com), Dan Erusalimchik (danerde@gmail.com)
 # This plugin is licensed under the GNU GPL Version 2.
 
 from novaprinter import prettyPrinter
 from helpers import retrieve_url
 import re
-from urllib import quote, unquote
+import codecs
+try:
+    from urllib import quote, unquote
+except:
+    # python 3
+    from urllib.parse import quote, unquote
 
 hit_pattern = re.compile(r'''\s*<a href="(?P<desc_link>.+)">(?P<name>.+)</a>\s*
 \s*</td>\s*
@@ -38,6 +43,14 @@ class tfile_me(object):
     def __init__(self):
         pass
 
+    def to_cp1251(self, text):
+        try:
+            # Python 2
+            return text.decode('utf-8').encode('cp1251')
+        except:
+            # Python 3
+            return codecs.encode(text, 'cp1251')
+
     def get_link(self, desc_link):
         html = retrieve_url(desc_link)
         for download_url in download.finditer(html):
@@ -47,7 +60,7 @@ class tfile_me(object):
         what = unquote(what)
         params = {}
         params['url'] = self.search_url
-        params['q'] = quote(what.decode('utf-8').encode('cp1251'))
+        params['q'] = quote(self.to_cp1251(what))
         params['f'] = self.supported_categories[cat]
         params['start'] = start
         dat = retrieve_url(self.query_pattern % params)

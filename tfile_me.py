@@ -20,7 +20,7 @@ hit_pattern = re.compile(r'''\s*<a href="(?P<desc_link>.+)">(?P<name>.+)</a>\s*
 tag = re.compile(r'<.*?>')
 
 class tfile_me(object):
-    url = 'http://tfile.me';
+    url = 'http://search.tfile.me';
     name = 'tfile.me'
     supported_categories = {'all': 0,
                             'movies': 37,
@@ -31,7 +31,7 @@ class tfile_me(object):
                             'software': 118,
                             'pictures': 1075,
                             'books': 195}
-    query_pattern = '%(url)s/forum/ssearch.php?q=%(q)s&c=%(f)i&start=%(start)i&o=newest&to=1&io=1'
+    query_pattern = '%(url)s/?q=%(q)s&c=%(f)i&start=%(start)i&o=newest&to=1&io=1'
     def __init__(self):
         pass
     def search_page(self, what, cat, start):

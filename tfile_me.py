@@ -1,4 +1,4 @@
-#VERSION: 1.00
+#VERSION: 2.00
 #AUTHORS: Boris Nagaev (bnagaev@gmail.com), Dan Erusalimchik (danerde@gmail.com)
 # This plugin is licensed under the GNU GPL Version 2.
 
@@ -10,7 +10,7 @@ from urllib import quote
 hit_pattern = re.compile(r'''\s*<a href="(?P<desc_link>.+)">(?P<name>.+)</a>\s*
 \s*</td>\s*
 \s*<td class="dl">\s*
-\s*<a href="(?P<link>.+)">(?P<size>.+)</a>\s*
+\s*(?P<size>.+)\s*
 \s*</td>\s*
 \s*<td class="dl">\s*
 \s*<b class="sd">(?P<seeds>.*)</b>\s*
@@ -18,9 +18,11 @@ hit_pattern = re.compile(r'''\s*<a href="(?P<desc_link>.+)">(?P<name>.+)</a>\s*
 \s*<td class="dl">\s*
 \s*<b class="lc">(?P<leech>.+)</b>\s*''')
 tag = re.compile(r'<.*?>')
+download = re.compile(r'download.php[^"]*')
 
 class tfile_me(object):
-    url = 'http://search.tfile.me';
+    search_url = 'http://search.tfile.me';
+    url = 'http://tfile.me';
     name = 'tfile.me'
     supported_categories = {'all': 0,
                             'movies': 37,
@@ -32,22 +34,29 @@ class tfile_me(object):
                             'pictures': 1075,
                             'books': 195}
     query_pattern = '%(url)s/?q=%(q)s&c=%(f)i&start=%(start)i&o=newest&to=1&io=1'
+
     def __init__(self):
         pass
+
+    def get_link(self, desc_link):
+        html = retrieve_url(desc_link)
+        for download_url in download.finditer(html):
+            return self.url + '/forum/' + download_url.group()
+
     def search_page(self, what, cat, start):
         params = {}
-        params['url'] = self.url
+        params['url'] = self.search_url
         params['q'] = quote(what.decode('utf-8').encode('cp1251'))
         params['f'] = self.supported_categories[cat]
         params['start'] = start
         dat = retrieve_url(self.query_pattern % params)
         for hit in hit_pattern.finditer(dat):
             d = hit.groupdict()
-            d['desc_link'] = self.url + d['desc_link']
-            d['link'] = self.url + d['link']
+            d['link'] = self.get_link(d['desc_link'])
             d['engine_url'] = self.url
             d['name'] = tag.sub('', d['name'])
-            yield d
+            if d['link']:
+                yield d
 
 
     def search(self, what, cat='all'):

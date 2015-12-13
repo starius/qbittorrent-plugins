@@ -1,11 +1,11 @@
-#VERSION: 2.00
+#VERSION: 2.01
 #AUTHORS: Boris Nagaev (bnagaev@gmail.com), Dan Erusalimchik (danerde@gmail.com)
 # This plugin is licensed under the GNU GPL Version 2.
 
 from novaprinter import prettyPrinter
 from helpers import retrieve_url
 import re
-from urllib import quote
+from urllib import quote, unquote
 
 hit_pattern = re.compile(r'''\s*<a href="(?P<desc_link>.+)">(?P<name>.+)</a>\s*
 \s*</td>\s*
@@ -44,6 +44,7 @@ class tfile_me(object):
             return self.url + '/forum/' + download_url.group()
 
     def search_page(self, what, cat, start):
+        what = unquote(what)
         params = {}
         params['url'] = self.search_url
         params['q'] = quote(what.decode('utf-8').encode('cp1251'))

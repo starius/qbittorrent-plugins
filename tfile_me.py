@@ -40,7 +40,6 @@ class tfile_me(object):
         params['q'] = quote(what.decode('utf-8').encode('cp1251'))
         params['f'] = self.supported_categories[cat]
         params['start'] = start
-        print self.query_pattern % params
         dat = retrieve_url(self.query_pattern % params)
         for hit in hit_pattern.finditer(dat):
             d = hit.groupdict()
